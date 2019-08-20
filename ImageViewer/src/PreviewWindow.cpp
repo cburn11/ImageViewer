@@ -1,6 +1,8 @@
 #include <Windows.h>
 #include <windowsx.h>
 
+#include <thread>
+
 #include <CommonHeaders.h>
 
 #include "PreviewWindow.h"
@@ -51,6 +53,14 @@ LRESULT PreviewWindow::MessageHandler(UINT const message, WPARAM const wParam, L
 	case WM_SIZE:
 		Cls_OnSize(m_window, (UINT) wParam, LOWORD(lParam), HIWORD(lParam));
 		break;
+
+	case PV_SETPREVIEWCACHE: {
+		const auto & current_dir = *( ( std::wstring * ) wParam );
+		const auto pfilename_cache = ( std::vector<std::wstring> * ) lParam;
+		SetPreviewCache(current_dir, pfilename_cache);
+		return 0;
+	}
+
 
 		HANDLE_MSG(m_window, WM_LBUTTONDOWN, Cls_OnLButtonDown);
 	}

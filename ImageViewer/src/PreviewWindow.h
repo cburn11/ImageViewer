@@ -9,6 +9,8 @@
 
 #include "ImageWindow.h"
 
+#define PV_SETPREVIEWCACHE (WM_APP + 1)
+
 class PreviewWindow : public ChildCompositionWindow<PreviewWindow> {
 
 	/*

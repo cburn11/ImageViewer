@@ -205,8 +205,9 @@ bool ImageWindow::DisplayImage(const WCHAR * szImagePath) {
 		return false;
 
 	ComPtr<IWICBitmapDecoder> decoder;
-	if( S_OK !=
-		m_WICFactory->CreateDecoderFromFilename(szImagePath, NULL, GENERIC_READ, WICDecodeMetadataCacheOnLoad, decoder.GetAddressOf()) ) {
+	HRESULT hr = m_WICFactory->CreateDecoderFromFilename(szImagePath, NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.GetAddressOf());
+	
+	if( S_OK != hr ) {
 
 		MessageBox(m_window, szImagePath, L"Image Viewer unable to open file:", MB_ICONERROR);
 		return false;
@@ -217,7 +218,7 @@ bool ImageWindow::DisplayImage(const WCHAR * szImagePath) {
 		decoder->GetFrame(0, frame.GetAddressOf()) )		return false;
 
 	ComPtr<IWICFormatConverter> converter;
-	auto hr = m_WICFactory->CreateFormatConverter(converter.GetAddressOf());
+	hr = m_WICFactory->CreateFormatConverter(converter.GetAddressOf());
 
 	if( S_OK != converter->Initialize(frame.Get(), GUID_WICPixelFormat32bppBGR,
 		WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeCustom) ) return false;

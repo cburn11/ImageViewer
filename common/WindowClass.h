@@ -123,6 +123,8 @@ template <typename T>
 struct ChildWindow : public BasicWindow<T> {
 
 	using BasicWindow<T>::wc;
+	using BasicWindow<T>::m_window;
+	using BasicWindow<T>::szWindowName;
 
 	virtual ~ChildWindow() { DestroyWindow(m_window); }
 

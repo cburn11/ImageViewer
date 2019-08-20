@@ -74,5 +74,5 @@ wstring GetExtensionFromFilename(const WCHAR * szFilename) {
 	if( !sz_ext )
 		return wstring{ L"" };
 
-	return wstring{ sz_ext };
+	return wstring{ sz_ext + 1 };
 }

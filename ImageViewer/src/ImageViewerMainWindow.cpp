@@ -8,6 +8,7 @@
 
 #include <string>
 using std::wstring;
+#include <cctype>
 
 #include <string.h>
 
@@ -280,7 +281,7 @@ void ImageViewerMainWindow::DisplayImage(const WCHAR * szImagePath) {
 
 	if( !szImagePath )	return;
 
-	/*if( !*/m_pImageWindow->DisplayImage(szImagePath) /*)	return*/;
+	if( !m_pImageWindow->DisplayImage(szImagePath) )	return;
 
 	wstring caption{ L"Image Viewer: " };
 	caption += szImagePath;
@@ -294,7 +295,31 @@ void ImageViewerMainWindow::DisplayImage(const WCHAR * szImagePath) {
 	}
 }
 
-void ImageViewerMainWindow::CacheImagePaths() {
+template <typename character>
+bool char_compare_ignore_case(character c1, character c2) {
+
+	return std::tolower(c1) == std::tolower(c2);
+}
+
+template <typename strClass>
+bool compareStringsIgnoreCase(const strClass& str1, const strClass& str2) {
+
+	if( str1.size() != str2.size() )	return false;
+
+	auto str1_end = str1.cend();
+	auto str1_iter = str1.cbegin();
+	auto str2_iter = str2.cbegin();
+	for( ; str1_iter != str1_end; 
+		++str1_iter, ++str2_iter ) {
+
+		bool result = char_compare_ignore_case(*str1_iter, *str2_iter);
+		if( result == false )	return false;
+	}
+
+	return true;
+}
+
+void ImageViewerMainWindow::CacheImagePaths() {	
 
 	CComPtr<IFolderView2> pfv;
 	auto res = GetFolderViewFromPath(m_current_dir.c_str(), &pfv);
@@ -314,7 +339,7 @@ void ImageViewerMainWindow::CacheImagePaths() {
 			if( S_OK == hr ) {
 				auto filename = GetFilenameFromPath(pszPath);
 				auto extension = GetExtensionFromFilename(filename.c_str());
-				if( extension == L".jpg" ) {
+				if( compareStringsIgnoreCase(extension, std::wstring{ L"jpg" }) ) {
 					m_image_filename_cache.push_back(filename);
 					if( filename == m_current_image_name ) {
 						m_index = m_image_filename_cache.size() - 1;
@@ -327,7 +352,7 @@ void ImageViewerMainWindow::CacheImagePaths() {
 		}
 
 		//	Alert PreviewWindow
-		m_pPreviewWindow->SetPreviewCache(m_current_dir, &m_image_filename_cache);
+		PostMessage(m_pPreviewWindow->m_window, PV_SETPREVIEWCACHE, (WPARAM) &m_current_dir, (LPARAM) &m_image_filename_cache);
 	}
 }
 
